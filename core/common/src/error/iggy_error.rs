@@ -476,22 +476,22 @@ pub enum IggyError {
     CannotReadIndexPosition = 10011,
     #[error("Cannot read index timestamp")]
     CannotReadIndexTimestamp = 10012,
-
     #[error("Timestamp out of range: {0}")]
     TimestampOutOfRange(u64) = 10013,
-
     #[error("Shard not found for stream ID: {0}, topic ID: {1}, partition ID: {2}")]
     ShardNotFound(usize, usize, usize) = 11000,
     #[error("Shard communication error")]
     ShardCommunicationError = 11001,
-
     #[error("Cannot bind to socket with addr: {0}")]
     CannotBindToSocket(String) = 12000,
     #[error("Task execution timeout")]
     TaskTimeout = 12001,
-
     #[error("IO error: {0}")]
     IoError(String) = 13000,
+    #[error("Client compression failed: {0}")]
+    CompressionError(String) = 14000,
+    #[error("Client decompression failed: {0}")]
+    DecompressionError(String) = 14001,
 }
 
 impl IggyError {

@@ -41,7 +41,7 @@ async fn background_send_receive_ok() {
         ..TcpClientConfig::default()
     };
     let client = ClientWrapper::Tcp(TcpClient::create(Arc::new(tcp_client_config)).unwrap());
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client.connect().await.unwrap();
     assert!(client.ping().await.is_ok(), "Failed to ping server");
@@ -107,7 +107,7 @@ async fn background_buffer_overflow_immediate() {
         ..TcpClientConfig::default()
     };
     let client = ClientWrapper::Tcp(TcpClient::create(Arc::new(tcp_client_config)).unwrap());
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client.connect().await.unwrap();
     assert!(client.ping().await.is_ok(), "Failed to ping server");
@@ -158,7 +158,7 @@ async fn background_block_with_timeout() {
         ..TcpClientConfig::default()
     };
     let client = ClientWrapper::Tcp(TcpClient::create(Arc::new(tcp_client_config)).unwrap());
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client.connect().await.unwrap();
     assert!(client.ping().await.is_ok(), "Failed to ping server");
@@ -216,7 +216,7 @@ async fn background_block_waits_then_succeeds() {
         ..TcpClientConfig::default()
     };
     let client = ClientWrapper::Tcp(TcpClient::create(Arc::new(tcp_client_config)).unwrap());
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client.connect().await.unwrap();
     login_root(&client).await;
@@ -272,7 +272,7 @@ async fn background_graceful_shutdown() {
         ..TcpClientConfig::default()
     };
     let client = ClientWrapper::Tcp(TcpClient::create(Arc::new(tcp_client_config)).unwrap());
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client.connect().await.unwrap();
     assert!(client.ping().await.is_ok(), "Failed to ping server");
@@ -350,7 +350,7 @@ async fn background_many_parallel_producers() {
         ..TcpClientConfig::default()
     };
     let client = ClientWrapper::Tcp(TcpClient::create(Arc::new(tcp_client_config)).unwrap());
-    let client = Arc::new(IggyClient::create(client, None, None));
+    let client = Arc::new(IggyClient::create(client, None, None, None));
 
     client.connect().await.unwrap();
     login_root(&client).await;

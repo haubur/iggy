@@ -64,7 +64,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let password = args.password.clone();
     let client_provider_config = Arc::new(ClientProviderConfig::from_args(iggy_args)?);
     let client = client_provider::get_raw_client(client_provider_config, false).await?;
-    let client = IggyClient::create(client, None, encryptor);
+    let client = IggyClient::create(client, None, encryptor, None);
     client.connect().await?;
     client.login_user(&username, &password).await.unwrap();
     info!("Data seeder has started...");

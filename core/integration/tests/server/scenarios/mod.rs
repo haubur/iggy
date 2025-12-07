@@ -50,7 +50,7 @@ const MESSAGES_COUNT: u32 = 1337;
 
 async fn create_client(client_factory: &dyn ClientFactory) -> IggyClient {
     let client = client_factory.create_client().await;
-    IggyClient::create(client, None, None)
+    IggyClient::create(client, None, None, None)
 }
 
 async fn get_consumer_group(client: &IggyClient) -> ConsumerGroupDetails {

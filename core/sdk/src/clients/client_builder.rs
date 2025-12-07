@@ -26,7 +26,7 @@ use crate::prelude::{
 use crate::quic::quic_client::QuicClient;
 use crate::tcp::tcp_client::TcpClient;
 use crate::websocket::websocket_client::WebSocketClient;
-use iggy_common::{ConnectionStringUtils, TransportProtocol};
+use iggy_common::{ClientCompressionConfig, ConnectionStringUtils, TransportProtocol};
 use std::sync::Arc;
 use tracing::error;
 
@@ -36,6 +36,7 @@ pub struct IggyClientBuilder {
     client: Option<ClientWrapper>,
     partitioner: Option<Arc<dyn Partitioner>>,
     encryptor: Option<Arc<EncryptorKind>>,
+    compressor: Option<Arc<ClientCompressionConfig>>,
 }
 
 impl IggyClientBuilder {
@@ -93,6 +94,12 @@ impl IggyClientBuilder {
         self
     }
 
+    /// Use client-side compression.
+    pub fn with_compressor(mut self, compressor: Arc<ClientCompressionConfig>) -> Self {
+        self.compressor = Some(compressor);
+        self
+    }
+
     /// This method provides fluent API for the TCP client configuration.
     /// It returns the `TcpClientBuilder` instance, which allows to configure the TCP client with custom settings or using defaults.
     /// This should be called after the non-protocol specific methods, such as `with_partitioner`, `with_encryptor` or `with_message_handler`.
@@ -143,7 +150,12 @@ impl IggyClientBuilder {
             return Err(IggyError::InvalidConfiguration);
         };
 
-        Ok(IggyClient::create(client, self.partitioner, self.encryptor))
+        Ok(IggyClient::create(
+            client,
+            self.partitioner,
+            self.encryptor,
+            self.compressor,
+        ))
     }
 }
 

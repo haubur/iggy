@@ -63,7 +63,7 @@ pub fn batch_user_size_bytes(polled_messages: &PolledMessages) -> u64 {
 
 pub async fn get_server_stats(client_factory: &Arc<dyn ClientFactory>) -> Result<Stats, IggyError> {
     let client = client_factory.create_client().await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client.connect().await?;
     client
@@ -78,7 +78,7 @@ pub async fn collect_server_logs_and_save_to_file(
     output_dir: &Path,
 ) -> Result<(), IggyError> {
     let client = client_factory.create_client().await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client.connect().await?;
     client

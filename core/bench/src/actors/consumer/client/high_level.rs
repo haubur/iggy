@@ -103,7 +103,7 @@ impl BenchmarkInit for HighLevelConsumerClient {
     async fn setup(&mut self) -> Result<(), IggyError> {
         let topic_id_str = "topic-1";
         let client = self.client_factory.create_client().await;
-        let client = IggyClient::create(client, None, None);
+        let client = IggyClient::create(client, None, None, None);
         login_root(&client).await;
 
         let stream_id_str = self.config.stream_id.clone();

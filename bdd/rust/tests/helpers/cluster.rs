@@ -45,7 +45,7 @@ pub async fn create_and_connect_client(addr: &str) -> IggyClient {
     };
 
     let client = client_factory.create_client().await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client.connect().await.expect("Client should connect");
     client

@@ -36,7 +36,7 @@ enum MessageToSend {
 
 pub async fn run(client_factory: &dyn ClientFactory) {
     let client = client_factory.create_client().await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     login_root(&client).await;
     init_system(&client).await;

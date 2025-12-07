@@ -52,14 +52,17 @@ derive_more = { workspace = true }
 err_trail = { workspace = true }
 fast-async-mutex = { version = "0.6.7", optional = true }
 figment = { workspace = true }
+flate2 = "1.1.7"
 human-repr = { workspace = true }
 humantime = { workspace = true }
+lz4 = "1.28.1"
 once_cell = { workspace = true }
 rcgen = "0.14.5"
 rustls = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true, features = ["base64"] }
+snap = "1.1.1"
 strum = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
@@ -67,6 +70,7 @@ toml = { workspace = true }
 tracing = { workspace = true }
 tungstenite = { workspace = true }
 twox-hash = { workspace = true }
+zstd = "0.13.3"
 
 [dev-dependencies]
 serial_test = { workspace = true }

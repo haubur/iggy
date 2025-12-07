@@ -27,7 +27,7 @@ use std::str::FromStr;
 
 pub async fn run(client_factory: &dyn ClientFactory) {
     let client = client_factory.create_client().await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     let consumer = Consumer {
         kind: CONSUMER_KIND,

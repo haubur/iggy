@@ -177,7 +177,7 @@ impl ConnectorsRuntime {
             .login_user(DEFAULT_ROOT_USERNAME, DEFAULT_ROOT_PASSWORD)
             .await
             .expect("Failed to login as root user");
-        IggyClient::create(client, None, None)
+        IggyClient::create(client, None, None, None)
     }
 
     pub fn connectors_api_address(&self) -> Option<String> {

@@ -36,7 +36,7 @@ pub async fn given_authenticated_as_root(world: &mut GlobalContext) {
     };
 
     let client = client_factory.create_client().await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client.ping().await.expect("Server should respond to ping");
     login_root(&client).await;

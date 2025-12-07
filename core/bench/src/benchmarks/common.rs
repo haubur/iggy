@@ -73,7 +73,7 @@ pub async fn init_consumer_groups(
     args: &IggyBenchArgs,
 ) -> Result<(), IggyError> {
     let client = client_factory.create_client().await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
     let cg_count = args.number_of_consumer_groups();
 
     login_root(&client).await;

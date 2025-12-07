@@ -20,10 +20,9 @@ use crate::client_wrappers::client_wrapper::ClientWrapper;
 use crate::client_wrappers::connection_info::ConnectionInfo;
 use crate::clients::client_builder::IggyClientBuilder;
 use crate::http::http_client::HttpClient;
-use crate::prelude::EncryptorKind;
-use crate::prelude::IggyConsumerBuilder;
-use crate::prelude::IggyError;
-use crate::prelude::IggyProducerBuilder;
+use crate::prelude::{
+    ClientCompressionConfig, EncryptorKind, IggyConsumerBuilder, IggyError, IggyProducerBuilder,
+};
 use crate::quic::quic_client::QuicClient;
 use crate::tcp::tcp_client::TcpClient;
 use crate::websocket::websocket_client::WebSocketClient;
@@ -49,6 +48,7 @@ pub struct IggyClient {
     pub(crate) client: IggyRwLock<ClientWrapper>,
     partitioner: Option<Arc<dyn Partitioner>>,
     pub(crate) encryptor: Option<Arc<EncryptorKind>>,
+    pub(crate) compressor: Option<Arc<ClientCompressionConfig>>,
 }
 
 impl Default for IggyClient {
@@ -77,6 +77,7 @@ impl IggyClient {
             client,
             partitioner: None,
             encryptor: None,
+            compressor: None,
         }
     }
 
@@ -103,6 +104,7 @@ impl IggyClient {
         client: ClientWrapper,
         partitioner: Option<Arc<dyn Partitioner>>,
         encryptor: Option<Arc<EncryptorKind>>,
+        compressor: Option<Arc<ClientCompressionConfig>>,
     ) -> Self {
         if partitioner.is_some() {
             info!("Partitioner is enabled.");
@@ -110,12 +112,16 @@ impl IggyClient {
         if encryptor.is_some() {
             info!("Client-side encryption is enabled.");
         }
+        if compressor.is_some() {
+            info!("Client-side compression is enabled.");
+        }
 
         let client = IggyRwLock::new(client);
         IggyClient {
             client,
             partitioner,
             encryptor,
+            compressor,
         }
     }
 
@@ -172,6 +178,7 @@ impl IggyClient {
             topic.try_into()?,
             topic.to_owned(),
             self.encryptor.clone(),
+            self.compressor.clone(),
             None,
         ))
     }

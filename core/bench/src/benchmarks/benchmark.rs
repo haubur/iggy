@@ -98,7 +98,7 @@ pub trait Benchmarkable: Send {
         let number_of_streams = self.args().streams();
         let partitions_count: u32 = self.args().number_of_partitions();
         let client = self.client_factory().create_client().await;
-        let client = IggyClient::create(client, None, None);
+        let client = IggyClient::create(client, None, None, None);
         login_root(&client).await;
         let streams = client.get_streams().await?;
         for i in 1..=number_of_streams {
@@ -137,7 +137,7 @@ pub trait Benchmarkable: Send {
     async fn check_streams(&self) -> Result<(), IggyError> {
         let number_of_streams = self.args().streams();
         let client = self.client_factory().create_client().await;
-        let client = IggyClient::create(client, None, None);
+        let client = IggyClient::create(client, None, None, None);
         login_root(&client).await;
         let streams = client.get_streams().await?;
         for i in 1..=number_of_streams {

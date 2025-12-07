@@ -120,7 +120,7 @@ impl BenchmarkInit for LowLevelConsumerClient {
         let default_partition_id = 0u32;
 
         let client = self.client_factory.create_client().await;
-        let client = IggyClient::create(client, None, None);
+        let client = IggyClient::create(client, None, None, None);
         login_root(&client).await;
 
         let stream_id: Identifier = self.config.stream_id.as_str().try_into().unwrap();

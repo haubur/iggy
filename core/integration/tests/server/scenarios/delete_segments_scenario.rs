@@ -27,7 +27,7 @@ const LOG_EXTENSION: &str = "log";
 
 pub async fn run(client_factory: &dyn ClientFactory, test_server: &TestServer) {
     let client = client_factory.create_client().await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
 
     client
         .login_user(DEFAULT_ROOT_USERNAME, DEFAULT_ROOT_PASSWORD)

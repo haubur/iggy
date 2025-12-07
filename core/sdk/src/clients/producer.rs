@@ -26,9 +26,11 @@ use futures_util::StreamExt;
 use iggy_binary_protocol::{Client, MessageClient, StreamClient, TopicClient};
 use iggy_common::locking::{IggyRwLock, IggyRwLockFn};
 use iggy_common::{
-    CompressionAlgorithm, DiagnosticEvent, EncryptorKind, IdKind, Identifier, IggyDuration,
-    IggyError, IggyExpiry, IggyMessage, IggyTimestamp, MaxTopicSize, Partitioner, Partitioning,
+    ClientCompressionConfig, CompressionAlgorithm, DiagnosticEvent, EncryptorKind, IdKind,
+    Identifier, IggyDuration, IggyError, IggyExpiry, IggyMessage, IggyTimestamp, MaxTopicSize,
+    Partitioner, Partitioning,
 };
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
 use std::sync::atomic::{AtomicBool, AtomicU64};
@@ -60,6 +62,7 @@ pub struct ProducerCore {
     topic_name: String,
     partitioning: Option<Arc<Partitioning>>,
     encryptor: Option<Arc<EncryptorKind>>,
+    compressor: Option<Arc<ClientCompressionConfig>>,
     partitioner: Option<Arc<dyn Partitioner>>,
     create_stream_if_not_exists: bool,
     create_topic_if_not_exists: bool,
@@ -306,6 +309,26 @@ impl ProducerCore {
         Ok(())
     }
 
+    fn maybe_compress(&self, messages: &mut [IggyMessage]) -> Result<(), IggyError> {
+        if let Some(compressor) = &self.compressor {
+            for message in messages {
+                let payload_size = message.payload.len() as u32;
+                if payload_size < compressor.min_size {
+                    continue;
+                } else {
+                    /*
+                    let compressed_payload = compress(&compressor.algorithm, &message.payload)?;
+                    message.payload = compressed_payload;
+                    let message_user_header = HashMap::from([("iggy_compression".to_string(), compressor.algorithm.to_string())]);
+                    message.user_headers.insert(message_user_header);
+                    */
+                    ()
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn get_partitioning(
         &self,
         stream: &Identifier,
@@ -438,6 +461,7 @@ impl IggyProducer {
         topic_name: String,
         partitioning: Option<Partitioning>,
         encryptor: Option<Arc<EncryptorKind>>,
+        compressor: Option<Arc<ClientCompressionConfig>>,
         partitioner: Option<Arc<dyn Partitioner>>,
         create_stream_if_not_exists: bool,
         create_topic_if_not_exists: bool,
@@ -459,6 +483,7 @@ impl IggyProducer {
             topic_name,
             partitioning: partitioning.map(Arc::new),
             encryptor,
+            compressor,
             partitioner,
             create_stream_if_not_exists,
             create_topic_if_not_exists,

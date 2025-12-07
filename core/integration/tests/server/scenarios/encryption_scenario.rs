@@ -69,7 +69,7 @@ async fn should_fill_data_with_headers_and_verify_after_restart_using_api(encryp
     }
     .create_client()
     .await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
     login_root(&client).await;
 
     // 3. Create test stream and topic
@@ -234,7 +234,7 @@ async fn should_fill_data_with_headers_and_verify_after_restart_using_api(encryp
     }
     .create_client()
     .await;
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
     login_root(&client).await;
 
     // 9. Send second batch of messages with different headers

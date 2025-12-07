@@ -106,7 +106,7 @@ impl IggyCmdTest {
             ..TcpClientConfig::default()
         };
         let client = ClientWrapper::Tcp(TcpClient::create(Arc::new(tcp_client_config)).unwrap());
-        let client = IggyClient::create(client, None, None);
+        let client = IggyClient::create(client, None, None, None);
 
         Self { server, client }
     }

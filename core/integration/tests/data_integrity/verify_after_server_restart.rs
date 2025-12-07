@@ -89,7 +89,7 @@ async fn should_fill_data_and_verify_after_restart(cache_setting: &'static str) 
     .create_client()
     .await;
 
-    let client = IggyClient::create(client, None, None);
+    let client = IggyClient::create(client, None, None, None);
     login_root(&client).await;
 
     let topic_id = Identifier::numeric(0).unwrap();
@@ -139,6 +139,7 @@ async fn should_fill_data_and_verify_after_restart(cache_setting: &'static str) 
         }
         .create_client()
         .await,
+        None,
         None,
         None,
     );
@@ -226,6 +227,7 @@ async fn should_fill_data_and_verify_after_restart(cache_setting: &'static str) 
         }
         .create_client()
         .await,
+        None,
         None,
         None,
     );

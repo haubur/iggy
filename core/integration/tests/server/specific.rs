@@ -90,7 +90,7 @@ async fn tcp_tls_scenario_should_be_valid() {
         .await
         .expect("Failed to connect TLS client");
 
-    let client = IggyClient::create(ClientWrapper::Iggy(client), None, None);
+    let client = IggyClient::create(ClientWrapper::Iggy(client), None, None, None);
 
     tcp_tls_scenario::run(&client).await;
 }
@@ -125,7 +125,8 @@ async fn tcp_tls_self_signed_scenario_should_be_valid() {
         .await
         .expect("Failed to connect TLS client with self-signed cert");
 
-    let client = iggy::clients::client::IggyClient::create(ClientWrapper::Iggy(client), None, None);
+    let client =
+        iggy::clients::client::IggyClient::create(ClientWrapper::Iggy(client), None, None, None);
 
     tcp_tls_scenario::run(&client).await;
 }
@@ -170,7 +171,7 @@ async fn websocket_tls_scenario_should_be_valid() {
         .await
         .expect("Failed to connect WebSocket TLS client");
 
-    let client = IggyClient::create(ClientWrapper::Iggy(client), None, None);
+    let client = IggyClient::create(ClientWrapper::Iggy(client), None, None, None);
 
     websocket_tls_scenario::run(&client).await;
 }

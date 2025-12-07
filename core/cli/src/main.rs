@@ -384,7 +384,7 @@ async fn main() -> Result<(), IggyCmdError> {
     let client =
         client_provider::get_raw_client(client_provider_config, command.connection_required())
             .await?;
-    let client = IggyClient::create(client, None, encryptor);
+    let client = IggyClient::create(client, None, encryptor, None);
 
     credentials.set_iggy_client(&client);
     credentials.login_user().await?;
