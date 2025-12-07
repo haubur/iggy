@@ -26,11 +26,11 @@ use futures_util::StreamExt;
 use iggy_binary_protocol::{Client, MessageClient, StreamClient, TopicClient};
 use iggy_common::locking::{IggyRwLock, IggyRwLockFn};
 use iggy_common::{
-    ClientCompressionConfig, CompressionAlgorithm, DiagnosticEvent, EncryptorKind, IdKind,
-    Identifier, IggyDuration, IggyError, IggyExpiry, IggyMessage, IggyTimestamp, MaxTopicSize,
-    Partitioner, Partitioning,
+    ClientCompressionConfig, CompressionAlgorithm, DiagnosticEvent, EncryptorKind, HeaderKey,
+    HeaderValue, IdKind, Identifier, IggyDuration, IggyError, IggyExpiry, IggyMessage,
+    IggyTimestamp, MaxTopicSize, Partitioner, Partitioning,
 };
-use std::collections::HashMap;
+use std::str::FromStr;
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
 use std::sync::atomic::{AtomicBool, AtomicU64};
@@ -313,16 +313,18 @@ impl ProducerCore {
         if let Some(compressor) = &self.compressor {
             for message in messages {
                 let payload_size = message.payload.len() as u32;
-                if payload_size < compressor.min_size {
+                if payload_size <= compressor.min_size {
                     continue;
                 } else {
-                    /*
-                    let compressed_payload = compress(&compressor.algorithm, &message.payload)?;
-                    message.payload = compressed_payload;
-                    let message_user_header = HashMap::from([("iggy_compression".to_string(), compressor.algorithm.to_string())]);
-                    message.user_headers.insert(message_user_header);
-                    */
-                    ()
+                    // compress payload
+                    let compressed_payload = compressor.algorithm.compress(&message.payload)?;
+                    message.payload = Bytes::from(compressed_payload);
+                    // add user-header
+                    let mut headers_map = message.user_headers_map()?.unwrap();
+                    headers_map.insert(
+                        HeaderKey::new("iggy-compression").unwrap(),
+                        HeaderValue::from_str(&compressor.algorithm.to_string()).unwrap(),
+                    );
                 }
             }
         }
