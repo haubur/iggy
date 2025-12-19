@@ -26,9 +26,9 @@ use futures_util::StreamExt;
 use iggy_binary_protocol::{Client, MessageClient, StreamClient, TopicClient};
 use iggy_common::locking::{IggyRwLock, IggyRwLockFn};
 use iggy_common::{
-    ClientCompressionConfig, CompressionAlgorithm, DiagnosticEvent, EncryptorKind, HeaderKey,
-    HeaderValue, IdKind, Identifier, IggyDuration, IggyError, IggyExpiry, IggyMessage,
-    IggyTimestamp, MaxTopicSize, Partitioner, Partitioning,
+    BytesSerializable, ClientCompressionConfig, CompressionAlgorithm, DiagnosticEvent,
+    EncryptorKind, HeaderKey, HeaderValue, IdKind, Identifier, IggyDuration, IggyError, IggyExpiry,
+    IggyMessage, IggyTimestamp, MaxTopicSize, Partitioner, Partitioning,
 };
 use std::str::FromStr;
 use std::sync::Arc;
@@ -311,20 +311,28 @@ impl ProducerCore {
 
     fn maybe_compress(&self, messages: &mut [IggyMessage]) -> Result<(), IggyError> {
         if let Some(compressor) = &self.compressor {
-            for message in messages {
-                let payload_size = message.payload.len() as u32;
-                if payload_size <= compressor.min_size {
-                    continue;
-                } else {
-                    // compress payload
+            if compressor.algorithm == CompressionAlgorithm::None {
+                return Ok(());
+            } else {
+                for message in messages {
+                    let payload_size = message.payload.len() as u32;
+                    if payload_size <= compressor.min_size {
+                        continue;
+                    }
                     let compressed_payload = compressor.algorithm.compress(&message.payload)?;
+                    if compressed_payload.len() >= message.payload.len() {
+                        continue;
+                    }
                     message.payload = Bytes::from(compressed_payload);
-                    // add user-header
-                    let mut headers_map = message.user_headers_map()?.unwrap();
+                    message.header.payload_length = message.payload.len() as u32;
+                    let mut headers_map = message.user_headers_map()?.unwrap_or_default();
                     headers_map.insert(
                         HeaderKey::new("iggy-compression").unwrap(),
                         HeaderValue::from_str(&compressor.algorithm.to_string()).unwrap(),
                     );
+                    let headers_bytes = headers_map.to_bytes();
+                    message.header.user_headers_length = headers_bytes.len() as u32;
+                    message.user_headers = Some(headers_bytes);
                 }
             }
         }
@@ -391,6 +399,10 @@ impl ProducerCoreBackend for ProducerCore {
     ) -> Result<(), IggyError> {
         if msgs.is_empty() {
             return Ok(());
+        }
+
+        if let Err(err) = self.maybe_compress(&mut msgs) {
+            return Err(self.make_failed_error(err, msgs));
         }
 
         if let Err(err) = self.encrypt_messages(&mut msgs) {
@@ -600,5 +612,312 @@ impl IggyProducer {
         if let Some(disp) = self.dispatcher {
             disp.shutdown().await;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    fn create_producer_core(compressor: Option<Arc<ClientCompressionConfig>>) -> ProducerCore {
+        use crate::client_wrappers::client_wrapper::ClientWrapper;
+        use crate::tcp::tcp_client::TcpClient;
+        use iggy_common::TcpClientConfig;
+        use iggy_common::locking::IggyRwLock;
+
+        let tcp_config = TcpClientConfig::default();
+        let tcp_client = TcpClient::create(Arc::new(tcp_config)).unwrap();
+        let client_wrapper = ClientWrapper::Tcp(tcp_client);
+
+        ProducerCore {
+            initialized: AtomicBool::new(false),
+            can_send: Arc::new(AtomicBool::new(true)),
+            client: Arc::new(IggyRwLock::new(client_wrapper)),
+            stream_id: Arc::new(Identifier::numeric(1).unwrap()),
+            stream_name: "test-stream".to_string(),
+            topic_id: Arc::new(Identifier::numeric(1).unwrap()),
+            topic_name: "test-topic".to_string(),
+            partitioning: None,
+            encryptor: None,
+            compressor,
+            partitioner: None,
+            create_stream_if_not_exists: false,
+            create_topic_if_not_exists: false,
+            topic_partitions_count: 1,
+            topic_replication_factor: None,
+            topic_message_expiry: IggyExpiry::ServerDefault,
+            topic_max_size: MaxTopicSize::ServerDefault,
+            default_partitioning: Arc::new(Partitioning::balanced()),
+            last_sent_at: Arc::new(AtomicU64::new(0)),
+            send_retries_count: None,
+            send_retries_interval: None,
+            direct_config: None,
+        }
+    }
+
+    fn create_message(payload: &[u8]) -> IggyMessage {
+        IggyMessage::builder()
+            .payload(Bytes::from(payload.to_vec()))
+            .build()
+            .unwrap()
+    }
+
+    fn create_message_with_headers(
+        payload: &[u8],
+        headers: HashMap<HeaderKey, HeaderValue>,
+    ) -> IggyMessage {
+        IggyMessage::builder()
+            .payload(Bytes::from(payload.to_vec()))
+            .user_headers(headers)
+            .build()
+            .unwrap()
+    }
+
+    fn compressible_data(size: usize) -> Vec<u8> {
+        "AAAAAAAAAA".repeat(size / 10 + 1).into_bytes()[..size].to_vec()
+    }
+
+    fn incompressible_data(size: usize) -> Vec<u8> {
+        (0..size).map(|i| (i * 31 + 17) as u8).collect()
+    }
+
+    #[test]
+    fn compression_reduces_payload_size() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Gzip,
+            min_size: 10,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let original = compressible_data(1000);
+        let original_len = original.len();
+        let mut messages = vec![create_message(&original)];
+        producer.maybe_compress(&mut messages).unwrap();
+
+        assert!(messages[0].payload.len() < original_len);
+        assert_eq!(
+            messages[0].header.payload_length as usize,
+            messages[0].payload.len()
+        );
+    }
+
+    #[test]
+    fn compression_adds_header() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Gzip,
+            min_size: 10,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let mut messages = vec![create_message(&compressible_data(1000))];
+        producer.maybe_compress(&mut messages).unwrap();
+        let headers = messages[0].user_headers_map().unwrap().unwrap();
+        let key = HeaderKey::new("iggy-compression").unwrap();
+
+        assert!(headers.contains_key(&key));
+        assert_eq!(headers.get(&key).unwrap().as_str().unwrap(), "gzip");
+    }
+
+    #[test]
+    fn compression_updates_user_headers_length() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Gzip,
+            min_size: 10,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let mut messages = vec![create_message(&compressible_data(1000))];
+
+        assert_eq!(messages[0].header.user_headers_length, 0);
+
+        producer.maybe_compress(&mut messages).unwrap();
+        let actual_len = messages[0].user_headers.as_ref().unwrap().len();
+
+        assert_eq!(messages[0].header.user_headers_length as usize, actual_len);
+        assert!(messages[0].header.user_headers_length > 0);
+    }
+
+    #[test]
+    fn skipped_when_algorithm_is_none() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::None,
+            min_size: 0,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let original = compressible_data(1000);
+        let original_len = original.len();
+        let mut messages = vec![create_message(&original)];
+        producer.maybe_compress(&mut messages).unwrap();
+
+        assert_eq!(messages[0].payload.len(), original_len);
+        assert!(messages[0].user_headers.is_none());
+    }
+
+    #[test]
+    fn skipped_when_payload_at_min_size() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Gzip,
+            min_size: 100,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let payload = compressible_data(100);
+        let original_len = payload.len();
+        let mut messages = vec![create_message(&payload)];
+        producer.maybe_compress(&mut messages).unwrap();
+
+        assert_eq!(messages[0].payload.len(), original_len);
+        assert!(messages[0].user_headers.is_none());
+    }
+
+    #[test]
+    fn skipped_when_payload_below_min_size() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Gzip,
+            min_size: 100,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let payload = compressible_data(50);
+        let original_len = payload.len();
+        let mut messages = vec![create_message(&payload)];
+        producer.maybe_compress(&mut messages).unwrap();
+
+        assert_eq!(messages[0].payload.len(), original_len);
+        assert!(messages[0].user_headers.is_none());
+    }
+
+    #[test]
+    fn skipped_when_compressed_larger() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Gzip,
+            min_size: 0,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let payload = incompressible_data(20);
+        let original_len = payload.len();
+        let mut messages = vec![create_message(&payload)];
+        producer.maybe_compress(&mut messages).unwrap();
+
+        assert_eq!(messages[0].payload.len(), original_len);
+        assert!(messages[0].user_headers.is_none());
+    }
+
+    #[test]
+    fn skipped_when_no_compressor() {
+        let producer = create_producer_core(None);
+
+        let payload = compressible_data(1000);
+        let original_len = payload.len();
+        let mut messages = vec![create_message(&payload)];
+
+        producer.maybe_compress(&mut messages).unwrap();
+
+        assert_eq!(messages[0].payload.len(), original_len);
+        assert!(messages[0].user_headers.is_none());
+    }
+
+    #[test]
+    fn handles_message_without_existing_headers() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Zstd,
+            min_size: 10,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let mut messages = vec![create_message(&compressible_data(1000))];
+
+        assert!(messages[0].user_headers.is_none());
+
+        producer.maybe_compress(&mut messages).unwrap();
+
+        assert!(messages[0].user_headers.is_some());
+
+        let headers = messages[0].user_headers_map().unwrap().unwrap();
+
+        assert_eq!(headers.len(), 1);
+    }
+
+    #[test]
+    fn preserves_existing_headers() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Lz4,
+            min_size: 10,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let mut existing = HashMap::new();
+        existing.insert(
+            HeaderKey::new("content-type").unwrap(),
+            HeaderValue::from_str("application/json").unwrap(),
+        );
+        existing.insert(
+            HeaderKey::new("correlation-id").unwrap(),
+            HeaderValue::from_str("12345").unwrap(),
+        );
+        let mut messages = vec![create_message_with_headers(
+            &compressible_data(1000),
+            existing,
+        )];
+        producer.maybe_compress(&mut messages).unwrap();
+        let headers = messages[0].user_headers_map().unwrap().unwrap();
+
+        assert_eq!(headers.len(), 3);
+        assert!(headers.contains_key(&HeaderKey::new("content-type").unwrap()));
+        assert!(headers.contains_key(&HeaderKey::new("correlation-id").unwrap()));
+        assert!(headers.contains_key(&HeaderKey::new("iggy-compression").unwrap()));
+    }
+
+    #[test]
+    fn overwrites_existing_compression_header() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Snappy,
+            min_size: 10,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let mut existing = HashMap::new();
+        existing.insert(
+            HeaderKey::new("iggy-compression").unwrap(),
+            HeaderValue::from_str("old-value").unwrap(),
+        );
+        let mut messages = vec![create_message_with_headers(
+            &compressible_data(1000),
+            existing,
+        )];
+        producer.maybe_compress(&mut messages).unwrap();
+        let headers = messages[0].user_headers_map().unwrap().unwrap();
+
+        assert_eq!(headers.len(), 1);
+
+        let value = headers
+            .get(&HeaderKey::new("iggy-compression").unwrap())
+            .unwrap()
+            .as_str()
+            .unwrap();
+
+        assert_eq!(value, "snappy");
+    }
+
+    #[test]
+    fn mixed_batch() {
+        let config = ClientCompressionConfig {
+            algorithm: CompressionAlgorithm::Gzip,
+            min_size: 50,
+        };
+        let producer = create_producer_core(Some(Arc::new(config)));
+        let mut messages = vec![
+            create_message(&compressible_data(30)),
+            create_message(&compressible_data(1000)),
+            create_message(&incompressible_data(100)),
+            create_message(&compressible_data(500)),
+        ];
+        let original_lens: Vec<usize> = messages.iter().map(|m| m.payload.len()).collect();
+        producer.maybe_compress(&mut messages).unwrap();
+
+        assert_eq!(messages[0].payload.len(), original_lens[0]);
+        assert!(messages[0].user_headers.is_none());
+
+        assert!(messages[1].payload.len() < original_lens[1]);
+        assert!(messages[1].user_headers.is_some());
+
+        assert_eq!(messages[2].payload.len(), original_lens[2]);
+        assert!(messages[2].user_headers.is_none());
+
+        assert!(messages[3].payload.len() < original_lens[3]);
+        assert!(messages[3].user_headers.is_some());
     }
 }
