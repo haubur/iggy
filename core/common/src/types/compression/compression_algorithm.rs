@@ -433,7 +433,7 @@ mod tests {
         let wired_data =
             "A̷ЯѢ Ψβ ﻉـم שָׁ𐤀 龘 ね゙こ̽ 안ㅎ👾🌪️💥🀄 QяЖ Ҩц ϟϘ شـر 🕎תּוֹר 龍🉐 道め 💫🧿".as_bytes();
         for config in ALGORITHM_OPTIONS {
-            cycle_with_all_algorithms(config, &wired_data);
+            cycle_with_all_algorithms(config, wired_data);
         }
     }
 
