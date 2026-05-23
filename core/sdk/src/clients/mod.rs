@@ -16,6 +16,22 @@
  * under the License.
  */
 
+//! This module provides the high-level API client, the central connection handle to the server.
+//!
+//! It wraps one of the low-level transport clients
+//! * TCP
+//! * QUIC
+//! * HTTP
+//! * WebSocket
+//!  and implements all server command traits
+//! * streams
+//! * topics
+//! * partitions
+//! * users
+//! * etc.
+//!
+//! On top it provides frequently used features when building message-streaming applications, such as partitioning strategies, encryption, auto-batching, polling strategies, consumer group membership, offset commit policies, etc.
+
 mod binary_cluster;
 mod binary_consumer_group;
 mod binary_consumer_offset;

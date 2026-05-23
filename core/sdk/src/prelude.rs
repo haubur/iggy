@@ -21,11 +21,30 @@
 //! This module re-exports the most common types, traits, and functions
 //! from the Iggy SDK to make them easier to import and use.
 //!
-//! # Examples
-//!
+//! The only thing you need to do is to import like this:
 //! ```
 //! use iggy::prelude::*;
 //! ```
+//! After that you do not need to be familiar with the crate and module layout.
+//! Instead of importing the consumer and producer builder like this
+//! ```
+//! use iggy::clients::consumer_builder::IggyConsumerBuilder;
+//! use iggy::clients::producer_builder::IggyProducerBuilder;
+//! ```
+//! you can simply import the prelude once and instantiate them
+//! ```
+//! use iggy::prelude::*;
+//!
+//! let producer = IggyConsumerBuilder::new();
+//! let consumer = IggyConsumerBuilder::new();
+//! ```
+//!
+//! The prelude re-exports a lot of things for convinience.
+//! If you are just starting out and need guidance on what the SDK's APIs provide, check the lib.rs where you will also find some references to deep dives on our website.
+//!
+//! You will find the high-level API in [`clients`] module,
+//! the low-level API in the modules [`http`], [`quic`], [`tcp`] and [`websocket`].
+//! A quick start abstraction wrapping the high-level API for the easiest way to get started in the [`stream_builder`] module.
 
 pub use crate::client_provider;
 pub use crate::client_provider::ClientProviderConfig;

@@ -93,20 +93,24 @@
 //!
 //! A complete server schema with all available commands can be found [here](https://iggy.apache.org/docs/server/schema/).
 //!
-//! # The different API tiers
-//! Users can decide between three different API tiers.
-//! TODO(haubur): table with columns, tier, name, purpose, design principle
-//!
-//!
-//! ## Persona: I want to ... where should I start?
-//! tba
+//! # The three API tiers
 //!
 //! # The different API tiers
-//! ## High-level API
-//! The Iggy server implements and abstracts away the technical details to read and write to the append-only data structure as efficiently as possible.
-//! Producers (applications that want to write messages to the server) and consumers (applications that want to read messages from the server) can make use of server commands to talk to the server.
-//! Server commands are essentially the user interface of the server.
+//! * Stream builder with [`IggyStream`].
+//! * High-level API with [`IggyClient`], [`IggyProducer`] and [`IggyConsumer`].
+//! * Low-level API with transport level clients [`TcpClient`], [`HttpClient`], [`QuicClient`] and [`WebsocketClient`].
+//! The low level API wrapps the server commands around the specific transport protocol which allows deep control and building custom abstractions.
+//! It does not implement things like auto-batching of messages, consumer group lifecycle, offset commits, retry logic or reconnection.
+//! This is what the high-level API is for. It wrapps the low-level API and comes with frequently required features in message-streaming applications.
+//! The high-level API is most likely the one you are looking for.
+//! On the top level we provide the stream builder API, which builds the IggyClient, IggyProducer and IggyConsumer from the high-level API with one single configuration.
 //!
+//! ## Where to start
+//! - **Evaluating Iggy or building a quick prototype?** → [`IggyStream`] (Convenience API)
+//! - **Building a production application?** → [`IggyClient`] + [`IggyProducer`] / [`IggyConsumer`] (Domain API)
+//! - **Writing a custom connector or integration?** → [`TcpClient`] or [`QuicClient`] (Transport API)
+//! - **Working examples:** see the [`examples`] directory in the repository.
+//! - **Questions?** Join our [`discord`] — maintainers and contributors are happy to help.
 //!
 //! ## Server Command Overview
 //! In its essence the Rust SDK wraps core feature of meassage streaming applications around Iggy server commands.
@@ -121,25 +125,6 @@
 //! * Segments
 //! * Consumer Groups
 //!
-//! ## Communicating with the server
-//! Users can trigger commands when connected to the server. Since connections can be established using TCP, QUIC, HTTP and WebSocket protocols,
-//! [`iggy_binary_protocl`] implements a common language/ schema that is shared between the server and the SDK for communication.
-//!
-//!
-//! - What is the protocol to trigger these commands? Why does Iggy have a unique protocol?
-//!   - The binary protocol implements logic to not copy incoming message payloads multiple times until write to disk (zero-copy).
-//!
-//! Is there a better way to structure the Rust SDK?
-//!
-//!
-//! ### Low-Level API
-//! - These are the transport clients (?)
-//! ### High-Level API
-//! - These are the domain clients (?)
-//! - What features are available here? e.g. polling strategies, partitioning strategies
-//! ### Streaming API
-//!//! - Low-level API implements the transport to directly access these commands.
-//! - High-level API to instantiate consumers and producers.
 //! [^note]: The details of how that is done internally are not discussed here. Refer, e.g. to [`the blog`].
 //! [^note]: tba
 //! [^note]: Indeed Apache Iggy comes with many implemented [*connectors* or *sinks*]() where data buffered on iggy can be pushed to a database for long term storage.
