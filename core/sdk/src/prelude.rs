@@ -19,32 +19,66 @@
 //! Prelude module for the Iggy SDK.
 //!
 //! This module re-exports the most common types, traits, and functions
-//! from the Iggy SDK to make them easier to import and use.
+//! from the Iggy (SDK) and [`crate:iggy_common`] to make them easier to import and use.
 //!
 //! The only thing you need to do is to import like this:
 //! ```
 //! use iggy::prelude::*;
 //! ```
-//! After that you do not need to be familiar with the crate and module layout.
-//! Instead of importing the consumer and producer builder like this
+//!
+//! The prelude re-exports a lot of things from different crates and modules that are typically required to build
+//! streaming applications for convenience.
+//! If you are just starting out and need guidance on what the SDK's APIs provide the prelude might be overwhelming.
+//! Instead refer to the [crate-level documentation](crate) for an overview of the three API tiers or jump directly to the tier's crate
+//! if you already know what to use. Find the **high-level API** in the [`crate::clients`] module,
+//! the transport **low-level API** in the modules [`crate::http`], [`crate::quic`], [`crate::tcp`] and [`crate::websocket`].
+//! Finally, the **stream builder** wrapping the high-level API for the easiest way to get started in the [`crate::stream_builder`] module.
+//!
+//! # Example
+//! Instead of importing the consumer and producer builder like this:
+//! ```rust,no_run
+//! // Without prelude you need to know the exact module path for each type,
+//! // and add `iggy_common` in Cargo.toml:
+//! use iggy::clients::client_builder::IggyClientBuilder;
+//! use iggy::clients::producer_config::DirectConfig;
+//! use iggy_common::{Client, IggyError, Partitioning};
+//!
+//! #[tokio::main]
+//! async fn main() -> Result<(), IggyError> {
+//!     let client = IggyClientBuilder::from_connection_string(
+//!         "iggy://iggy:iggy@localhost:8090",
+//!     )?.build()?;
+//!     client.connect().await?;
+//!     let producer = client
+//!         .producer("my-stream", "my-topic")?
+//!         .direct(DirectConfig::builder().build())
+//!         .partitioning(Partitioning::balanced())
+//!         .build();
+//!     producer.init().await?;
+//!     Ok(())
+//! }
 //! ```
-//! use iggy::clients::consumer_builder::IggyConsumerBuilder;
-//! use iggy::clients::producer_builder::IggyProducerBuilder;
-//! ```
-//! you can simply import the prelude once and instantiate them
-//! ```
+//!
+//! Using the prelude you have one import, no module paths to remember and no extra Cargo.toml entry:
+//!
+//! ```rust,no_run
 //! use iggy::prelude::*;
 //!
-//! let producer = IggyConsumerBuilder::new();
-//! let consumer = IggyConsumerBuilder::new();
+//! #[tokio::main]
+//! async fn main() -> Result<(), IggyError> {
+//!     let client = IggyClientBuilder::from_connection_string(
+//!         "iggy://iggy:iggy@localhost:8090",
+//!     )?.build()?;
+//!     client.connect().await?;
+//!     let producer = client
+//!         .producer("my-stream", "my-topic")?
+//!         .direct(DirectConfig::builder().build())
+//!         .partitioning(Partitioning::balanced())
+//!         .build();
+//!     producer.init().await?;
+//!     Ok(())
+//! }
 //! ```
-//!
-//! The prelude re-exports a lot of things for convinience.
-//! If you are just starting out and need guidance on what the SDK's APIs provide, check the lib.rs where you will also find some references to deep dives on our website.
-//!
-//! You will find the high-level API in [`clients`] module,
-//! the low-level API in the modules [`http`], [`quic`], [`tcp`] and [`websocket`].
-//! A quick start abstraction wrapping the high-level API for the easiest way to get started in the [`stream_builder`] module.
 
 pub use crate::client_provider;
 pub use crate::client_provider::ClientProviderConfig;
