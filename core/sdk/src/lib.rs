@@ -22,10 +22,33 @@
 //! Apache Iggy is a high-performance, persistent message streaming platform written in Rust, capable of processing millions of messages per second with ultra-low latency.
 //! It is part of the [`Incubating Program`] of the [`Apache Software Foundation (ASF)`].
 //!
-//! If you are not new to message streaming, you can safely skip the sections [`Introduction`] and [`Mental Model`].
-//! TODO(haubur): Have a look at the API tiers and persona instead.
+//! To build with Iggy you will need a server instance and a SDK.
+//! The source code for both is available for [download on our website](https://iggy.apache.org/downloads/) or on [GitHub](https://github.com/apache/iggy/).
+//! This is the documentation for the Rust SDK. Other (foreign) language SDKs are [available](https://github.com/apache/iggy/tree/master/foreign).
 //!
-//! # Introduction
+//! # Getting Started
+//! We have three API tiers to build message-streaming applications, which provide different level of control dependent on the use case and needs.
+//! For more tested examples check [GitHub](https://github.com/apache/iggy/tree/master/examples).
+//!
+//! ## High-level API
+//! * name IggyConsumer features
+//! * name IggyProducer features
+//! This is most likely the interface you are looking for when you are starting out with Iggy.
+//! Its intend is to abstract away transport specific implementation. Instead an IggyClient is provided that is transport agnostic.
+//! The client connects to the server and allows to spawn producers and consumers.
+//!
+//! ### Example
+//! ```rust
+//!
+//! ```
+//! For more details on the high-level API refer to [`clients`]
+//!
+//!
+//!
+//!
+//! # Background
+//! ## What is message streaming?
+//! ## Why choose Apache Iggy?
 //! Message-streaming solutions are relevant in contexts where a lot of data is exchanged between many applications running on different devices.
 //! When sending and retrieving data between devices one wants to ensure, that the source device sends the data and the destination device receives the data.
 //! In distributed environments, where many systems, services and devices need to exchange data this can become error prone. Connections can fail, data can be corrupted or devices might fail entirely.
@@ -130,7 +153,7 @@
 //! [^note]: Indeed Apache Iggy comes with many implemented [*connectors* or *sinks*]() where data buffered on iggy can be pushed to a database for long term storage.
 //!
 //! [`Incubating Program`]: https://incubator.apache.org/
-//! [`Apache Software Foundation`]: https://www.apache.org/
+//! [`Apache Software Foundation (ASF)`]: https://www.apache.org/foundation
 //! [`the blog`]: https://iggy.apache.org/blogs/2025/11/17/websocket-io-uring/
 //! [`core/foreign`]: https://github.com/apache/iggy/tree/master/foreign
 //! [`Designing Data-Intensive Applications`]: https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/
