@@ -61,6 +61,9 @@ mod http_view_header;
 // An unqualified REST read must not answer below what the same caller was told
 // committed, on the node that accepted the write and has not applied it yet.
 mod http_read_your_writes;
+// A string identifier that holds only digits must address the entity of that
+// name over REST too, not the entity whose slab id it spells.
+mod http_identifier_kinds;
 // Binary GetClusterMetadata must serve the real roster from a VSR cluster.
 mod cluster_metadata_vsr;
 // A declared node.advertised_address outranks the bind address a
