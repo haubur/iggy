@@ -23,9 +23,9 @@
 
 use crate::codec::{read_bytes, read_u32_le, read_u64_le};
 use crate::error::WireError;
+use alloc::borrow::Cow;
 use bytes::{BufMut, BytesMut};
-use std::borrow::Cow;
-use std::num::NonZeroU32;
+use core::num::NonZeroU32;
 
 /// Status code for a successful response.
 pub const STATUS_OK: u32 = 0;

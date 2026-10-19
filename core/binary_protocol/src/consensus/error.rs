@@ -16,6 +16,7 @@
 // under the License.
 
 use super::command::Command;
+use alloc::string::String;
 use thiserror::Error;
 
 #[derive(Debug, Clone, Error, PartialEq, Eq)]

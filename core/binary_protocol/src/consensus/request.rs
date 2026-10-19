@@ -18,7 +18,7 @@
 use crate::codes::{LOGIN_REGISTER_CODE, LOGIN_REGISTER_WITH_PAT_CODE, LOGOUT_USER_CODE};
 use crate::consensus::{Command, HEADER_SIZE, Operation, RequestHeader};
 use crate::error::WireError;
-use std::ops::Range;
+use core::ops::Range;
 use twox_hash::XxHash3_64;
 
 /// Where `RequestHeader::reserved` carries the legacy command code of a

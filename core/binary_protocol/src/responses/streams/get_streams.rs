@@ -18,6 +18,7 @@
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode};
 use crate::responses::streams::StreamResponse;
+use alloc::vec::Vec;
 use bytes::BytesMut;
 
 /// `GetStreams` response: sequential stream headers.

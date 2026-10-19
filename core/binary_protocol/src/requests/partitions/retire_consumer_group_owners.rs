@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 use crate::WireError;

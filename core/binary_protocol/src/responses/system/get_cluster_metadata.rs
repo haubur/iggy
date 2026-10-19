@@ -17,6 +17,8 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_str, read_u8, read_u16_le, read_u32_le};
+use alloc::string::String;
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// `GetClusterMetadata` response: cluster name and list of nodes.

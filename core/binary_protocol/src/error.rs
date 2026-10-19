@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::borrow::Cow;
+use alloc::borrow::Cow;
 
 /// Protocol-local error type for wire format encode/decode failures.
 ///

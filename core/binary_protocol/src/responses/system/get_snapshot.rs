@@ -17,6 +17,7 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode};
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// `GetSnapshot` response: raw snapshot data (ZIP archive).

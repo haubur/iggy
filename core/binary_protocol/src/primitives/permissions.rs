@@ -17,6 +17,7 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_u8, read_u32_le};
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 const HAS_NEXT: u8 = 1;

@@ -142,8 +142,8 @@ pub const fn pack_protocol_version(major: u32, minor: u32, patch: u32) -> u32 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ProtocolVersion(pub u32);
 
-impl std::fmt::Display for ProtocolVersion {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for ProtocolVersion {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
             "{}.{}.{}",

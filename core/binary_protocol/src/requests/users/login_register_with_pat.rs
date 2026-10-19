@@ -19,6 +19,7 @@ use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_str, read_u8, read_u32_le};
 use crate::requests::users::login_register::{BIND_SECRET_BYTES, BindSecret};
 use crate::version::ClientVersionInfo;
+use alloc::string::String;
 use bytes::{BufMut, BytesMut};
 use secrecy::{ExposeSecret, SecretString};
 

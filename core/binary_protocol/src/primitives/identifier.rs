@@ -17,9 +17,11 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_bytes, read_str, read_u8};
+use alloc::borrow::Cow;
+use alloc::format;
+use alloc::string::String;
 use bytes::{BufMut, BytesMut};
-use std::borrow::Cow;
-use std::ops::Deref;
+use core::ops::Deref;
 
 // WireName
 
@@ -74,14 +76,14 @@ impl Deref for WireName {
     }
 }
 
-impl std::fmt::Display for WireName {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for WireName {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&self.0)
     }
 }
 
-impl std::fmt::Debug for WireName {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for WireName {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "WireName({:?})", self.0)
     }
 }
@@ -220,8 +222,8 @@ impl WireDecode for WireIdentifier {
                         "string identifier cannot be empty",
                     )));
                 }
-                let s =
-                    std::str::from_utf8(value).map_err(|_| WireError::InvalidUtf8 { offset: 2 })?;
+                let s = core::str::from_utf8(value)
+                    .map_err(|_| WireError::InvalidUtf8 { offset: 2 })?;
                 let wire_name = WireName::new(s)?;
                 Ok((Self::String(wire_name), consumed))
             }
@@ -234,8 +236,8 @@ impl WireDecode for WireIdentifier {
     }
 }
 
-impl std::fmt::Display for WireIdentifier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for WireIdentifier {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::Numeric(id) => write!(f, "{id}"),
             Self::String(s) => write!(f, "{s}"),

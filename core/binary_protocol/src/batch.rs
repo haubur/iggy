@@ -30,7 +30,7 @@
 //! encoding.
 
 use crate::WireError;
-use std::hash::Hasher;
+use core::hash::Hasher;
 use twox_hash::XxHash3_64;
 
 /// Size of the batch header. The remainder past the fields below is reserved
@@ -106,7 +106,7 @@ impl BatchHeader {
 
         let batch_length = read_u64(bytes, 32);
         if batch_length < BATCH_HEADER_SIZE as u64 {
-            return Err(WireError::Validation(std::borrow::Cow::Borrowed(
+            return Err(WireError::Validation(alloc::borrow::Cow::Borrowed(
                 "batch length must cover the batch header",
             )));
         }
@@ -117,7 +117,7 @@ impl BatchHeader {
             .iter()
             .any(|&reserved_byte| reserved_byte != 0)
         {
-            return Err(WireError::Validation(std::borrow::Cow::Borrowed(
+            return Err(WireError::Validation(alloc::borrow::Cow::Borrowed(
                 "batch header reserved bytes must be zero",
             )));
         }
@@ -165,7 +165,7 @@ impl BatchHeader {
         self.batch_length
             .checked_sub(BATCH_HEADER_SIZE as u64)
             .and_then(|len| usize::try_from(len).ok())
-            .ok_or(WireError::Validation(std::borrow::Cow::Borrowed(
+            .ok_or(WireError::Validation(alloc::borrow::Cow::Borrowed(
                 "batch length must cover the batch header",
             )))
     }
@@ -252,7 +252,7 @@ impl BatchMessageHeader {
         }
 
         if read_u64(bytes, 40) != 0 {
-            return Err(WireError::Validation(std::borrow::Cow::Borrowed(
+            return Err(WireError::Validation(alloc::borrow::Cow::Borrowed(
                 "message frame reserved bytes must be zero",
             )));
         }
@@ -498,7 +498,7 @@ pub fn verify_and_recompute_batch_checksum(batch: &BatchRef<'_>) -> Result<u64, 
         covered = framed.end;
     }
     if verified != batch.message_count() || covered != blob.len() {
-        return Err(WireError::Validation(std::borrow::Cow::Borrowed(
+        return Err(WireError::Validation(alloc::borrow::Cow::Borrowed(
             "batch frames do not tile message_count exactly",
         )));
     }
@@ -519,7 +519,7 @@ fn validate_batch_layout(batch: &BatchRef<'_>) -> Result<(), WireError> {
         covered = framed.end;
     }
     if counted != batch.message_count() || covered != blob.len() {
-        return Err(WireError::Validation(std::borrow::Cow::Borrowed(
+        return Err(WireError::Validation(alloc::borrow::Cow::Borrowed(
             "batch frames do not tile message_count exactly",
         )));
     }

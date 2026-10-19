@@ -18,6 +18,7 @@
 use crate::WireError;
 use crate::WireIdentifier;
 use crate::codec::{WireDecode, WireEncode, read_str, read_u8};
+use alloc::string::String;
 use bytes::{BufMut, BytesMut};
 
 /// `ChangePassword` request.

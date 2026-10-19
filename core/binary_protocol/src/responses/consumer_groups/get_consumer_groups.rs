@@ -18,6 +18,7 @@
 use super::consumer_group_response::ConsumerGroupResponse;
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode};
+use alloc::vec::Vec;
 use bytes::BytesMut;
 
 /// `GetConsumerGroups` response: sequential consumer group headers.

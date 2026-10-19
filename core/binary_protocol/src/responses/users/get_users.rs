@@ -18,6 +18,7 @@
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode};
 use crate::responses::users::user_response::UserResponse;
+use alloc::vec::Vec;
 use bytes::BytesMut;
 
 /// `GetUsers` response: sequential user headers.

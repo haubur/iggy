@@ -17,6 +17,8 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_f32_le, read_str, read_u32_le, read_u64_le};
+use alloc::string::String;
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// Per-partition cache hit/miss statistics.

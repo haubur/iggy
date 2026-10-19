@@ -18,6 +18,7 @@
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_u64_le};
 use crate::primitives::identifier::WireName;
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// Single personal access token entry on the wire.

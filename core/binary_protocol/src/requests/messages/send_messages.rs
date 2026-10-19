@@ -94,7 +94,7 @@ impl SendMessagesEncoder {
         messages: &[RawMessage<'_>],
     ) -> Result<(), WireError> {
         if messages.is_empty() {
-            return Err(WireError::Validation(std::borrow::Cow::Borrowed(
+            return Err(WireError::Validation(alloc::borrow::Cow::Borrowed(
                 "cannot encode an empty message batch",
             )));
         }

@@ -29,22 +29,35 @@ documentation = "https://iggy.apache.org/docs"
 repository = "https://github.com/apache/iggy"
 readme = "README.md"
 
+[features]
+default = ["std"]
+std = ["alloc", "bytes/std", "serde/std", "thiserror/std", "twox-hash/std"]
+alloc = ["dep:bytes", "dep:secrecy", "serde/alloc", "twox-hash/alloc"]
+# Pass-through for targets without compare-and-swap atomics.
+portable-atomic = ["bytes?/extra-platforms"]
+
+# Dependencies that need `default-features = false` cannot inherit from the
+# workspace, because the workspace entries keep their default features on.
+# Keep these versions in step with `[workspace.dependencies]`.
 [dependencies]
 bytemuck = { workspace = true }
-bytes = { workspace = true }
+bytes = { version = "1.12.1", default-features = false, optional = true }
 enumset = { workspace = true }
-secrecy = { workspace = true }
-serde = { workspace = true }
-thiserror = { workspace = true }
-twox-hash = { workspace = true }
+secrecy = { version = "0.10", default-features = false, features = ["serde"], optional = true }
+serde = { version = "1.0.229", default-features = false, features = ["derive"] }
+thiserror = { version = "2.0.21", default-features = false }
+twox-hash = { version = "2.1.5", default-features = false, features = ["xxhash3_64"] }
 
 [dev-dependencies]
 aligned-vec = { workspace = true }
 
 [lints.clippy]
+alloc_instead_of_core = "deny"
 enum_glob_use = "deny"
 nursery = "warn"
 pedantic = "deny"
+std_instead_of_alloc = "deny"
+std_instead_of_core = "deny"
 
 [lints.rust]
 warnings = "deny"

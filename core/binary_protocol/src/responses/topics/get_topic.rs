@@ -19,6 +19,7 @@ use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_u32_le, read_u64_le};
 use crate::primitives::partition_history::PartitionContext;
 use crate::responses::streams::get_stream::TopicHeader;
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// Partition details within a `GetTopic` response.

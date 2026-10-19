@@ -17,8 +17,10 @@
 
 use crate::codec::{WireDecode, WireEncode, bounded_capacity, read_u32_le, read_u64_le};
 use crate::error::WireError;
+use alloc::borrow::Cow;
+use alloc::format;
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
-use std::borrow::Cow;
 
 /// Size of one confirmation entry:
 /// `stream_id(4) + topic_id(4) + partition_id(4) + base_offset(8)`.

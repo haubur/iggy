@@ -16,6 +16,8 @@
 // under the License.
 
 use crate::WireError;
+use alloc::string::String;
+use alloc::string::ToString;
 use bytes::{Bytes, BytesMut};
 
 /// Encode a wire type into a caller-owned buffer.
@@ -173,7 +175,7 @@ pub fn read_str(buf: &[u8], offset: usize, len: usize) -> Result<String, WireErr
             need: len,
             have: buf.len().saturating_sub(offset),
         })?;
-    std::str::from_utf8(slice)
+    core::str::from_utf8(slice)
         .map(str::to_string)
         .map_err(|_| WireError::InvalidUtf8 { offset })
 }

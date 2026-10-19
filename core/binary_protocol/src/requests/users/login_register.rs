@@ -21,6 +21,8 @@ use crate::codec::{
 };
 use crate::primitives::identifier::WireName;
 use crate::version::ClientVersionInfo;
+use alloc::boxed::Box;
+use alloc::string::String;
 use bytes::{BufMut, BytesMut};
 use secrecy::{ExposeSecret, SecretBox, SecretString};
 

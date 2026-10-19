@@ -19,6 +19,7 @@ use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_u32_le};
 use crate::primitives::partition_assignment::CreatedPartitionAssignment;
 use crate::requests::partitions::CreatePartitionsRequest;
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 fn usize_to_u32(value: usize, context: &str) -> u32 {

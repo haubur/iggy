@@ -58,8 +58,10 @@
 use super::{Command, ConsensusError, Operation};
 use crate::WireIdentifier;
 use crate::requests::partitions::InstallConsumerGroupOwnerRequest;
+use alloc::format;
+use alloc::string::ToString;
 use bytemuck::{CheckedBitPattern, NoUninit};
-use std::mem::offset_of;
+use core::mem::offset_of;
 
 pub const HEADER_SIZE: usize = 256;
 
@@ -3078,7 +3080,7 @@ impl ConsensusHeader for ForwardCompletionHeader {
 
 #[cfg(test)]
 mod tests {
-    use std::mem::offset_of;
+    use core::mem::offset_of;
 
     // The byte-level twin exists for frames whose operation byte does not
     // cast; if it ever disagrees with the typed method, a genuine
@@ -3133,8 +3135,8 @@ mod tests {
     /// A minimal well-formed header of type `H`: own command and size, everything
     /// else zero. Enough for the seal, which reads bytes rather than fields.
     fn control_header<H: ConsensusHeader>() -> H {
-        const COMMAND_OFF: usize = std::mem::offset_of!(GenericHeader, command);
-        const SIZE_OFF: usize = std::mem::offset_of!(GenericHeader, size);
+        const COMMAND_OFF: usize = core::mem::offset_of!(GenericHeader, command);
+        const SIZE_OFF: usize = core::mem::offset_of!(GenericHeader, size);
 
         let frame_len = u32::try_from(HEADER_SIZE).expect("HEADER_SIZE fits u32");
         let mut frame = AlignedFrame([0u8; HEADER_SIZE]);
@@ -3205,7 +3207,7 @@ mod tests {
             let header = control_header::<DoViewChangeHeader>();
             // Skip offsets where the flipped bit is an invalid bit pattern, which
             // `try_from_bytes` rejects one layer earlier.
-            if offset == std::mem::offset_of!(DoViewChangeHeader, command) {
+            if offset == core::mem::offset_of!(DoViewChangeHeader, command) {
                 continue;
             }
             assert!(
@@ -3320,7 +3322,7 @@ mod tests {
         buf[128] = 1;
         // Register (session 0, request 0 are its required values); a zeroed
         // operation is `Reserved`, which validate rejects.
-        buf[std::mem::offset_of!(RequestHeader, operation)] = Operation::Register as u8;
+        buf[core::mem::offset_of!(RequestHeader, operation)] = Operation::Register as u8;
         let header: &RequestHeader = bytemuck::checked::try_from_bytes(&buf).unwrap();
         assert_eq!(header.command, Command::Request);
         assert!(header.validate().is_ok());
@@ -3424,7 +3426,7 @@ mod tests {
     // it, so a layout drift must trip here.
     #[test]
     fn reply_header_status_offset_and_size_pinned() {
-        use std::mem::offset_of;
+        use core::mem::offset_of;
         assert_eq!(size_of::<ReplyHeader>(), HEADER_SIZE);
         assert_eq!(offset_of!(ReplyHeader, status), 216);
         assert_eq!(offset_of!(ReplyHeader, reserved), 220);
@@ -3438,7 +3440,7 @@ mod tests {
     // in `reserved[0..4]` and the captured partition context.
     #[test]
     fn routed_request_group_claims_reserved_tail() {
-        use std::mem::offset_of;
+        use core::mem::offset_of;
         assert_eq!(
             offset_of!(RoutedRequestHeader, reserved),
             offset_of!(RequestHeader, reserved)
@@ -3839,7 +3841,7 @@ mod tests {
     // must not reach the proposal.
     #[test]
     fn forward_register_tampered_user_id_fails_the_seal() {
-        const USER_ID_OFFSET: usize = std::mem::offset_of!(ForwardRegisterHeader, user_id);
+        const USER_ID_OFFSET: usize = core::mem::offset_of!(ForwardRegisterHeader, user_id);
 
         assert!(matches!(
             tamper(forward_register(), USER_ID_OFFSET),
@@ -3900,7 +3902,7 @@ mod tests {
     // before `validate` ever runs.
     #[test]
     fn forward_register_result_rejects_unknown_outcome() {
-        const OUTCOME_OFFSET: usize = std::mem::offset_of!(ForwardRegisterResultHeader, outcome);
+        const OUTCOME_OFFSET: usize = core::mem::offset_of!(ForwardRegisterResultHeader, outcome);
 
         let mut buf = aligned_zeroed(HEADER_SIZE);
         buf.copy_from_slice(bytemuck::bytes_of(&forward_register_result(
@@ -4036,7 +4038,7 @@ mod tests {
 
     #[test]
     fn forward_logout_result_rejects_unknown_outcome() {
-        const OUTCOME_OFFSET: usize = std::mem::offset_of!(ForwardLogoutResultHeader, outcome);
+        const OUTCOME_OFFSET: usize = core::mem::offset_of!(ForwardLogoutResultHeader, outcome);
 
         let mut bytes = aligned_zeroed(HEADER_SIZE);
         bytes.copy_from_slice(bytemuck::bytes_of(&forward_logout_result(

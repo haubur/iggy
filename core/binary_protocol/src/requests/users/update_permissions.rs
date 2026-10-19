@@ -19,8 +19,9 @@ use crate::WireError;
 use crate::WireIdentifier;
 use crate::codec::{WireDecode, WireEncode, read_u8, read_u32_le};
 use crate::primitives::permissions::WirePermissions;
+use alloc::borrow::Cow;
+use alloc::format;
 use bytes::{BufMut, BytesMut};
-use std::borrow::Cow;
 
 /// `UpdatePermissions` request.
 ///

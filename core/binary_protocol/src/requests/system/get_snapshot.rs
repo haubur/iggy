@@ -17,6 +17,7 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_u8};
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// `GetSnapshot` request.

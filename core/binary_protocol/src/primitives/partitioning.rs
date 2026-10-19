@@ -17,8 +17,10 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_bytes, read_u8, read_u32_le};
+use alloc::borrow::Cow;
+use alloc::format;
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
-use std::borrow::Cow;
 
 const KIND_BALANCED: u8 = 1;
 const KIND_PARTITION_ID: u8 = 2;

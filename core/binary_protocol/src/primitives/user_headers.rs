@@ -27,7 +27,8 @@
 //! Domain-level interpretation (mapping kind codes to typed values)
 //! happens in `iggy_common`.
 
-use std::borrow::Cow;
+use alloc::borrow::Cow;
+use alloc::format;
 
 use bytes::{BufMut, Bytes, BytesMut};
 
@@ -476,7 +477,7 @@ mod tests {
                 6u8,
                 &100i32.to_le_bytes() as &[u8],
                 14u8,
-                &std::f32::consts::PI.to_le_bytes() as &[u8],
+                &core::f32::consts::PI.to_le_bytes() as &[u8],
             ),
         ];
         let expected_size = user_headers_encoded_size(&entries);

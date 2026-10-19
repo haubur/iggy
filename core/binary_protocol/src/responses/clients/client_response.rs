@@ -17,6 +17,7 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_str, read_u8, read_u32_le};
+use alloc::string::String;
 use bytes::{BufMut, BytesMut};
 
 /// Consumer group membership entry.

@@ -17,8 +17,9 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_u8};
+use alloc::borrow::Cow;
+use alloc::format;
 use bytes::{BufMut, BytesMut};
-use std::borrow::Cow;
 
 /// Resource whose option catalog is being described.
 pub const OPTIONS_SCOPE_TOPIC: u8 = 1;

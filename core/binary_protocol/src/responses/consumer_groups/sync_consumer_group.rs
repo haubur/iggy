@@ -17,6 +17,7 @@
 
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, bounded_capacity, read_u32_le, read_u64_le};
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// `SyncConsumerGroup` response.

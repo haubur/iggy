@@ -20,8 +20,10 @@ use crate::codec::{WireDecode, WireEncode, read_str, read_u8, read_u32_le};
 use crate::primitives::identifier::WireName;
 use crate::primitives::options::WireOptions;
 use crate::primitives::permissions::WirePermissions;
+use alloc::borrow::Cow;
+use alloc::format;
+use alloc::string::String;
 use bytes::{BufMut, BytesMut};
-use std::borrow::Cow;
 
 /// `CreateUser` request.
 ///

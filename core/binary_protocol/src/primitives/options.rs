@@ -25,7 +25,10 @@
 //! block size, all rejected at the wire edge before a request reaches
 //! admission.
 
-use std::borrow::Cow;
+use alloc::borrow::Cow;
+use alloc::format;
+use alloc::string::String;
+use alloc::vec::Vec;
 
 use bytes::{BufMut, Bytes, BytesMut};
 
@@ -100,7 +103,7 @@ pub fn validate_options(buf: &[u8]) -> Result<u32, WireError> {
                 entry.key_kind.0
             ))));
         }
-        if std::str::from_utf8(entry.key).is_err() {
+        if core::str::from_utf8(entry.key).is_err() {
             return Err(WireError::Validation(Cow::Borrowed(
                 "option key is not valid UTF-8",
             )));

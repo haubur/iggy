@@ -18,6 +18,7 @@
 use super::consumer_group_response::ConsumerGroupResponse;
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_u32_le};
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// A consumer group member with its assigned partitions.

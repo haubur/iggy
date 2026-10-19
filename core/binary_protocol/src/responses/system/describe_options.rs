@@ -18,6 +18,8 @@
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_u8, read_u32_le};
 use crate::primitives::identifier::WireName;
+use alloc::string::String;
+use alloc::vec::Vec;
 use bytes::{BufMut, Bytes, BytesMut};
 
 /// One catalog entry in a `DescribeOptions` response.

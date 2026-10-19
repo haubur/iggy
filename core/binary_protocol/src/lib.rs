@@ -54,6 +54,18 @@
 //! - View change: [`StartViewChangeHeader`], [`DoViewChangeHeader`],
 //!   [`StartViewHeader`]
 //! - Dispatch: [`GenericHeader`] for type-erased initial parsing
+//!
+//! # `no_std`
+//!
+//! The `std` feature is on by default. With `default-features = false` and
+//! the `alloc` feature, the crate builds with `core` and `alloc` only.
+
+#![cfg_attr(not(any(feature = "std", test)), no_std)]
+
+#[cfg(not(feature = "alloc"))]
+compile_error!("iggy_binary_protocol needs the `alloc` feature");
+
+extern crate alloc;
 
 pub mod batch;
 pub mod codec;

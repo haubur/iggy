@@ -22,6 +22,7 @@ use crate::primitives::options::{
     WireOptions, decode_options_prefixed, encode_options_prefixed, options_prefixed_size,
 };
 use crate::responses::streams::StreamResponse;
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// Topic header within a `GetStream` response.

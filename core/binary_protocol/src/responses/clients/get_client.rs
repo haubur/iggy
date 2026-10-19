@@ -18,6 +18,7 @@
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode};
 use crate::responses::clients::client_response::{ClientResponse, ConsumerGroupInfoResponse};
+use alloc::vec::Vec;
 use bytes::BytesMut;
 
 /// `GetClient` response: client header followed by consumer group entries.

@@ -18,6 +18,7 @@
 use crate::WireError;
 use crate::codec::{WireDecode, WireEncode, read_u32_le};
 use crate::responses::streams::get_stream::TopicHeader;
+use alloc::vec::Vec;
 use bytes::{BufMut, BytesMut};
 
 /// `GetTopics` response: count-prefixed topic headers.
