@@ -1,0 +1,66 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+[package]
+name = "iggy_sansio"
+version = "0.1.0-edge.1"
+description = "Sans-IO Iggy client protocol: session, retries and request matching without sockets or clocks. Runs on no_std targets."
+edition = "2024"
+rust-version.workspace = true
+license = "Apache-2.0"
+keywords = ["iggy", "messaging", "streaming", "sans-io", "no-std"]
+categories = ["network-programming", "no-std", "embedded"]
+homepage = "https://iggy.apache.org"
+documentation = "https://iggy.apache.org/docs"
+repository = "https://github.com/apache/iggy"
+
+[features]
+default = []
+# Only for tests and the example. The library itself never uses std.
+std = ["iggy_binary_protocol/std", "bytes/std"]
+# Pass-through for targets without compare-and-swap atomics, such as the ESP32-C3.
+portable-atomic = ["iggy_binary_protocol/portable-atomic", "bytes/extra-platforms"]
+
+# Dependencies that need `default-features = false` cannot inherit from the
+# workspace, because the workspace entries keep their default features on.
+# Keep these versions in step with `[workspace.dependencies]`.
+[dependencies]
+bytemuck = { workspace = true }
+bytes = { version = "1.12.1", default-features = false }
+iggy_binary_protocol = { path = "../binary_protocol", version = "0.11.1-edge.1", default-features = false, features = [
+    "alloc",
+] }
+sansio = "1.0.1"
+secrecy = { version = "0.10", default-features = false }
+
+[dev-dependencies]
+rand = { workspace = true }
+
+[[example]]
+name = "blocking_tcp"
+required-features = ["std"]
+
+[lints.clippy]
+alloc_instead_of_core = "deny"
+enum_glob_use = "deny"
+nursery = "warn"
+pedantic = "deny"
+std_instead_of_alloc = "deny"
+std_instead_of_core = "deny"
+
+[lints.rust]
+warnings = "deny"
