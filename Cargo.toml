@@ -76,7 +76,7 @@ members = [
     "gateways/kafka",
     "gateways/kafka/tools/kafka-tool",
 ]
-exclude = ["foreign/cpp", "foreign/php", "foreign/python"]
+exclude = ["examples/embedded/esp32c6", "foreign/cpp", "foreign/php", "foreign/python"]
 resolver = "3"
 
 [workspace.package]

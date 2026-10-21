@@ -167,7 +167,7 @@ mod tests {
         body[..RESULT_COUNT_LEN].copy_from_slice(&2u32.to_le_bytes());
         for missing_tail in [0, RESULT_ENTRY_LEN - 1] {
             let mut truncated = body.clone();
-            truncated.extend(std::iter::repeat_n(0, missing_tail));
+            truncated.extend(core::iter::repeat_n(0, missing_tail));
             assert_eq!(result_code(&truncated), None);
             assert_eq!(result_section_len(&truncated), None);
         }

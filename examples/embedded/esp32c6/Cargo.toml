@@ -1,0 +1,93 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+[package]
+edition = "2024"
+name = "esp32c6"
+rust-version = "1.95"
+version = "0.1.0"
+
+[[bin]]
+name = "esp32c6"
+path = "./src/bin/main.rs"
+
+[dependencies]
+esp-hal = { version = "~1.2.2", features = ["esp32c6", "unstable"] }
+
+esp-rtos = { version = "0.4.0", features = [
+    "embassy",
+    "esp-alloc",
+    "esp-radio",
+    "esp32c6",
+] }
+
+esp-bootloader-esp-idf = { version = "0.6.0", features = ["esp32c6"] }
+
+bytes = { version = "1.12.1", default-features = false }
+embassy-futures = "0.1"
+embassy-sync = "0.8"
+iggy_sansio = { path = "../../../core/sansio_client", default-features = false }
+
+embassy-net = { version = "0.9.1", features = [
+    "dhcpv4",
+    "medium-ethernet",
+    "tcp",
+    "udp",
+] }
+embedded-io = "0.7.1"
+embedded-io-async = "0.7.0"
+esp-alloc = { version = "0.11.0", features = ["esp32c6"] }
+# for more networking protocol support see https://crates.io/crates/edge-net
+embassy-executor = { version = "0.10.0", features = [] }
+embassy-time = "0.5.0"
+esp-radio = { version = "1.0.0-beta.1", features = [
+    "esp-alloc",
+    "esp32c6",
+    "unstable",
+    "wifi",
+] }
+smoltcp = { version = "0.14.0", default-features = false, features = [
+    "medium-ethernet",
+    "multicast",
+    "proto-dhcpv4",
+    "proto-dns",
+    "proto-ipv4",
+    "socket-dns",
+    "socket-icmp",
+    "socket-raw",
+    "socket-tcp",
+    "socket-udp",
+] }
+
+critical-section = "1.2.0"
+esp-println = { version = "0.18.0", features = ["esp32c6", "log-04"] }
+log = "0.4"
+static_cell = "2.1.1"
+
+# For fine tuning these settings, please refer to https://doc.rust-lang.org/cargo/reference/profiles.html
+[profile.dev]
+# The default debug profile is too slow and too big for resource-constrained devices.
+# Always build with some optimizations enabled.
+opt-level = "s"
+
+[profile.release]
+codegen-units = 1 # LLVM can perform better optimizations using a single thread
+debug = 2 # prefer slower builds but better debugging experience
+lto = 'fat'
+opt-level = 's'
+
+[workspace]
